@@ -8,7 +8,33 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="pythonnet" Version="3.1.0-preview2024-09-06" />
+        <PackageReference Include="pythonnet" Version="3.0.5" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="AI\check.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <TargetPath>%(Filename)%(Extension)</TargetPath>
+        </None>
+        
+        <None Include="AI\Origin\handover\backend\risk_inference.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>AI\%(Filename)%(Extension)</Link>
+            <TargetPath>%(Filename)%(Extension)</TargetPath>
+        </None>
+
+        <None Include="AI\Origin\handover\backend\yolov8_dark_pattern.pt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>AI\%(Filename)%(Extension)</Link>
+            <TargetPath>%(Filename)%(Extension)</TargetPath>
+        </None>
+
+        <None Update="AI\Origin\handover\backend\efficientnet_risk.pt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>AI\%(Filename)%(Extension)</Link>
+            <TargetPath>%(Filename)%(Extension)</TargetPath>
+        </None>
     </ItemGroup>
 
 </Project>

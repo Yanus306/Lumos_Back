@@ -1,0 +1,3 @@
+[submodule "Lumos_Back/AI/Origin"]
+	path = Lumos_Back/AI/Origin
+	url = https://github.com/Yanus306/lumos_ai.git

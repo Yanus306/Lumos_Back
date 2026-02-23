@@ -21,7 +21,9 @@ public static class Program {
 
     public static async Task<IResult> Check(HttpContext context) {
         Guid requestId = Guid.NewGuid();
-        string path = Path.Combine(ImageTempFolder, $"{requestId}.png");
+        if(context.Request.ContentType != "image/jpeg") return Results.BadRequest("Content type must be image/jpeg");
+        string path = Path.Combine(ImageTempFolder, $"{requestId}.jpg");
+        string folder = Path.Combine(ImageTempFolder, requestId.ToString());
         string resultPath;
         await using(FileStream fs = new(path, FileMode.Create)) {
             await context.Request.Body.CopyToAsync(fs);
@@ -30,7 +32,7 @@ public static class Program {
             byte[] hash = await SHA256.HashDataAsync(fs);
             resultPath = Path.Combine(ResultFolder, $"{Convert.ToHexString(hash)}.json");
         }
-        if(!File.Exists(resultPath)) await AiRunner.AnalyzeAsync(path, resultPath);
+        if(!File.Exists(resultPath)) await AiRunner.AnalyzeAsync(path, folder, resultPath);
         
         return Results.File(resultPath, "application/json");
     }
