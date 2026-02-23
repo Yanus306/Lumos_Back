@@ -80,6 +80,7 @@ public class AiRunner {
                         }
                     }
                     Tcs.SetResult(true);
+                    Directory.Delete(folder, true);
                 } else {
                     int count = Data!.Length;
                     if(count == 0) {

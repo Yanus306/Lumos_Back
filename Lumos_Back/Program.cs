@@ -10,6 +10,9 @@ public static class Program {
     public static void Main(string[] args) {
         AiRunner.Setup();
         
+        if(!Directory.Exists(ImageTempFolder)) Directory.CreateDirectory(ImageTempFolder);
+        if(!Directory.Exists(ResultFolder)) Directory.CreateDirectory(ResultFolder);
+        
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         WebApplication app = builder.Build();
