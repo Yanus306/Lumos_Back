@@ -1,0 +1,14 @@
+# Intellij Idea
+.idea
+*.DotSettings.user
+
+# Compile File
+*.dll
+bin/
+obj/
+
+# Library
+packages/
+
+# Visual Studio
+.vs
