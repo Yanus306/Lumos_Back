@@ -17,7 +17,7 @@ public static class Program {
 
         WebApplication app = builder.Build();
 
-        app.MapPost("/check", Check);
+        app.MapPost("/check", (Delegate) Check);
 
         app.Run();
     }
@@ -37,6 +37,6 @@ public static class Program {
         }
         if(!File.Exists(resultPath)) await AiRunner.AnalyzeAsync(path, folder, resultPath);
         
-        return Results.File(resultPath, "application/json");
+        return Results.File(Path.GetFullPath(resultPath), "application/json");
     }
 }

@@ -17,13 +17,13 @@ def check(image_path):
 
     return detections
 
-def calculate_rist(detections_path):
+def calculate_risk(detections_path):
     results = []
     for i, det in enumerate(detections_path):
         result = predict_dark_pattern_risk(det)
         results.append({
-            "level": result.rist_level,
-            "score": result.probabilities[result.rist_level] * 100
+            "level": result["risk_level"],
+            "score": result["probabilities"][result["risk_level"]] * 100
         })
 
     return results

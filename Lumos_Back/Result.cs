@@ -12,15 +12,17 @@ public class Result {
     
     
     public Result(dynamic result) {
-        dynamic bbox = result.bbox;
+        dynamic bbox = result["bbox"];
         Rect = new Rectangle((int)bbox[0], (int)bbox[1], (int)bbox[2], (int)bbox[3]);
-        PatternType = (string) result.class_name;
-        YoloConfidence = (float) result.confidence;
+        Rect.Width -= Rect.X;
+        Rect.Height -= Rect.Y;
+        PatternType = (string) result["class_name"];
+        YoloConfidence = (float) result["confidence"];
     }
 
     public void ApplyAfter(dynamic result) {
-        RiskLevel = (string) result.riskLevel;
-        RiskScore = (float) result.riskScore;
+        RiskLevel = (string) result["level"];
+        RiskScore = (float) result["score"];
     }
 
     public void Save(Utf8JsonWriter writer) {
