@@ -15,7 +15,16 @@ public static class Program {
         
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddCors(options => {
+            options.AddDefaultPolicy(policy => {
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            });
+        });
+
         WebApplication app = builder.Build();
+        app.UseCors();
 
         app.MapPost("/check", (Delegate) Check);
 
