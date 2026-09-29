@@ -7,9 +7,6 @@ public class Result {
     public Rectangle Rect;
     public string PatternType;
     public float YoloConfidence;
-    public string RiskLevel;
-    public float RiskScore;
-    
     
     public Result(dynamic result) {
         dynamic bbox = result["bbox"];
@@ -18,11 +15,6 @@ public class Result {
         Rect.Height -= Rect.Y;
         PatternType = (string) result["class_name"];
         YoloConfidence = (float) result["confidence"];
-    }
-
-    public void ApplyAfter(dynamic result) {
-        RiskLevel = (string) result["level"];
-        RiskScore = (float) result["score"];
     }
 
     public void Save(Utf8JsonWriter writer) {
@@ -37,11 +29,6 @@ public class Result {
         
         writer.WriteString("patternType", PatternType);
         writer.WriteNumber("yoloConfidence", YoloConfidence);
-        
-        writer.WriteStartObject("risk");
-        writer.WriteString("level", RiskLevel);
-        writer.WriteNumber("score", RiskScore);
-        writer.WriteEndObject();
         
         writer.WriteEndObject();
     }

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 
 namespace Lumos.Python;
 
@@ -44,7 +42,7 @@ public class AiRunner {
             try {
                 if(queue.TryDequeue(out RequestData? data)) {
                     try {
-                        object result = data.IsNotFirst ? checker.calculate_risk(data.Path) : checker.check(data.Path[0]);
+                        object result = checker.check(data.Path[0]);
                         data.RunNext(result);
                     } catch (Exception e) {
                         data.Tcs.SetException(e);
@@ -66,69 +64,46 @@ public class AiRunner {
         public string[] Path = [path];
         public readonly TaskCompletionSource<bool> Tcs = tcs;
         private Result[] Results;
-        public bool IsNotFirst;
 
         public void RunNext(dynamic data) {
-            if(IsNotFirst) {
-                for(int i = 0; i < Results.Length; i++) 
-                    Results[i].ApplyAfter(data[i]);
+            int count = data.__len__();
+            if(count == 0) {
                 Task.Run(() => {
                     try {
-                        using(FileStream fs = new(resultPath, FileMode.Create)) {
-                            using Utf8JsonWriter writer = new(fs);
-                            writer.WriteStartArray();
-                            for(int i = 0; i < Results.Length; i++)
-                                Results[i].Save(writer);
-                            writer.WriteEndArray();
-                        }
+                        File.WriteAllText(resultPath, "[]");
                         Tcs.SetResult(true);
-                        Directory.Delete(folder, true);
                     } catch (Exception e) {
                         Tcs.SetException(e);
                     }
                 });
-            } else {
-                int count = data.__len__();
-                if(count == 0) {
-                    Task.Run(() => {
-                        try {
-                            File.WriteAllText(resultPath, "[]");
-                            Tcs.SetResult(true);
-                        } catch (Exception e) {
-                            Tcs.SetException(e);
-                        }
-                    });
-                    return;
-                }
-
-                Results = new Result[count];
-                for(int i = 0; i < count; i++)
-                    Results[i] = new Result(data[i]);
-
-                Task.Run(() => {
-                    try {
-                        string path = Path[0];
-                        Path = new string[count];
-
-                        if(!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
-                        using(Image image = Image.Load(path)) {
-                            for(int i = 0; i < Results.Length; i++) {
-                                string imagePath = System.IO.Path.Combine(folder, $"{i}.jpg");
-                                int i1 = i;
-                                using(Image cropped = image.Clone(x => x.Crop(Results[i1].Rect)))
-                                    cropped.Save(imagePath);
-                                Path[i] = imagePath;
-                            }
-                        }
-
-                        IsNotFirst = true;
-                        AddQueue(this);
-                    } catch (Exception e) {
-                        Tcs.SetException(e);
-                    }
-                });
+                return;
             }
+
+            Results = new Result[count];
+            for(int i = 0; i < count; i++)
+                Results[i] = new Result(data[i]);
+            Task.Run(() => {
+                try {
+                    using(FileStream fs = new(resultPath, FileMode.Create)) {
+                        using Utf8JsonWriter writer = new(fs);
+                        writer.WriteStartObject();
+                        writer.WriteNumber("riskLevel", Results.Length switch {
+                            < 5 => 0,
+                            < 15 => 1,
+                            _ => 2
+                        });
+                        writer.WriteStartArray("results");
+                        for(int i = 0; i < Results.Length; i++)
+                            Results[i].Save(writer);
+                        writer.WriteEndArray();
+                        writer.WriteEndObject();
+                    }
+                    Tcs.SetResult(true);
+                    Directory.Delete(folder, true);
+                } catch (Exception e) {
+                    Tcs.SetException(e);
+                }
+            });
         }
     }
 }
